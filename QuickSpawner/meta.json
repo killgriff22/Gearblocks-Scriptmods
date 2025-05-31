@@ -1,0 +1,7 @@
+{
+    "name": "QuickSpawner",
+    "desc": "A scriptmod to let you spawn parts without needing to open the menu.",
+    "tags": [
+      "scriptmod", "building"
+    ]
+  }

@@ -1,0 +1,9 @@
+{
+  "name": "BuildTools",
+  "desc": "improved version of the buildertoolext script from the base game.\nMade by thisisx_x on discord\nFeatures welding, improved colliision management, and some general part information.\nAlso includes the pivot snap function from the buildertoolext.\nTest build, please report bugs to thisisx_x on discord.",
+  "tags": [
+    "Building",
+    "ScriptMod"
+  ],
+  "publishedID": 3437455739
+}

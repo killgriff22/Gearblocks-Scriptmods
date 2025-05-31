@@ -1,0 +1,8 @@
+{
+    "name": "StressTest",
+    "desc": "Spawns in an assload of parts to stress test worlds and hardware.",
+    "tags": [
+      "Debug",
+      "ScriptMod"
+    ]
+  }

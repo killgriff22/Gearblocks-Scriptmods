@@ -1,0 +1,36 @@
+{
+	"folders": [
+		{
+			"path": "../../../../../../../../Program Files (x86)/Steam/steamapps/common/GearBlocks"
+		},
+		{
+			"path": "../../../../../../../../Program Files (x86)/Steam/steamapps/workshop/content/1305080"
+		},
+		{
+			"path": "."
+		},
+		{
+			"path": "PartDumper"
+		},
+		{
+			"path": "StandardLib"
+		},
+		{
+			"path": "BuilderTool"
+		},
+		{
+			"path": "TranslationLayers"
+		},
+		{
+			"path": "QuickSpawner"
+		}
+	],
+	"settings": {
+		"python.languageServer": "Pylance",
+		"python.analysis.diagnosticSeverityOverrides": {
+			"reportMissingModuleSource": "none",
+			"reportShadowedImports": "none"
+		},
+		"circuitpython.board.version": null
+	}
+}
