@@ -19,11 +19,18 @@ local key = "tab"
 local haveupdated_cranks = false
 local haveupdated_heads = false
 
+local linecount = 0
 
+local dataglob_open_tag = "!!__!!__!!"
+local dataglob_closing_tag = "==++==++== "
 
 --main loop
 function Update()
      --loadfile()() the input file
+    linecount = 0
+    local crank_ouputted = false
+    local head_ouputted = false
+    linecount = helperlib.print(dataglob_open_tag, linecount)
     local player = Playerlib.GetPlayer().Value
     local updates = loadfile("EFI Tuning/Update.lua")()
      --if we've selected a construction id
@@ -64,7 +71,8 @@ function Update()
                             end
                         end
                         --print the output for the crank
-                        helperlib.CrankOutput(i, updates.uid, wrk_angle, type, rpm, torque, power)
+                        linecount = helperlib.CrankOutput(i, updates.uid, wrk_angle, type, rpm, torque, power, linecount)
+                        crank_ouputted = true
                         --match angle value to one given in our file
                         if not wrk_angle == updates.crankangles[i] then
                             --apply if changed
@@ -115,8 +123,9 @@ function Update()
                             end
                         end
                         --print out the output for the head
-                        helperlib.HeadOutput(i, updates.uid, maxrpm.Value, order.Value, maxve.Value, peakve.Value, lambda.Value, 
-                                        exeffct.Value, double.Value, ve, ipfr, ffr, te)
+                        linecount = helperlib.HeadOutput(i, updates.uid, maxrpm.Value, order.Value, maxve.Value, peakve.Value, lambda.Value, 
+                                        exeffct.Value, double.Value, ve, ipfr, ffr, te, linecount)
+                        head_ouputted = true
                         --match changes between fresh head info and what our file wants it against
                         if not maxrpm.Value == updates.MaxRpm then
                             maxrpm.Value = updates.MaxRpm  
@@ -151,6 +160,9 @@ function Update()
             end
         end
     end
+    if crank_ouputted and head_ouputted then
+        print(dataglob_closing_tag .. linecount)
+    end
  --if keyflag is not and key is pressed
     if not keyflag and Input.GetKey(key) then
         keyflag = true
@@ -162,7 +174,6 @@ function Update()
         local isengine = false
         for part in targetedConstruction.Parts do
             --if part is a cylinder
-            print(helperlib.IsCyl(part))
             if helperlib.IsCyl(part) then
                 for Behaviour in part.Behaviours do
                     if Behaviour.Name == "Engine Cylinder" then
@@ -184,9 +195,6 @@ function Update()
     elseif keyflag and not Input.GetKey(key) then
         keyflag = false
     end
-end
-function FixedUpdate()
-    loadfile("EFI Tuning/FixedUpdate.lua")()
 end
 
 function Cleanup()
