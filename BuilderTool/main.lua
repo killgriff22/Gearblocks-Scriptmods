@@ -559,7 +559,6 @@ function Update()
 		currentTargetedPart = targetedPart
 	end
     if Input.GetKeyDown('tab') then
-        print(pickPartButton)
         pickPart(part)
     end
     if not secondwin then

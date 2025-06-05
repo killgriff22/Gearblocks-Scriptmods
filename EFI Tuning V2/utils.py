@@ -1,5 +1,5 @@
 from random import randint
-import math, os, random, time, pygame
+import math, os, random, time, pygame, platform
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 pygame.init()
 pygame.font.init()
@@ -21,4 +21,8 @@ def rotate(origin, point, angle):
     return qx, qy
 
 def popup(msg, user = "*"):
-    os.system(f'msg {user} "{msg}"')
+    plat = platform.system()
+    if plat.lower() == "windows":
+        os.system(f'msg {user} "{msg}"')
+    else:
+        print(msg)

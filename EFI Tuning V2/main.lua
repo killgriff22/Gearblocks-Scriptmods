@@ -169,6 +169,9 @@ function Update()
         --get the targetpart
         local targetedPart = Playerlib.GetTargetedPart(player)
         --get the targeted construction
+        if not targetedPart then
+            return
+        end
         local targetedConstruction = targetedPart.ParentConstruction
         --loop through construction's parts
         local isengine = false

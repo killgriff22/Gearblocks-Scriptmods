@@ -1,6 +1,6 @@
 from utils import *
 gaugeface = None
-
+tabuuid = 896732451
 class Window:
     def __init__(self, size=(800, 600), title="EFI Tuning GUI"):
         global gaugeface
@@ -26,17 +26,24 @@ class Window:
         surf.blit(gaugeface, (0, 0))
         self.surfs.append([surf, pos, val, min, max, 0])
     def update_gauges(self):
-        min = 40
-        max = 280
+        _min = 40
+        _max = 280
         for surf in self.surfs:
             if surf[-1] == 0:
                 _surf = pygame.Surface((200, 200), pygame.SRCALPHA)
                 _surf.blit(gaugeface, (0, 0))
                 percent = (surf[2] - surf[3]) / (surf[4] - surf[3])
-                angle = percent * max + min
+                angle = percent * _max + _min
                 
                 pygame.draw.line(_surf, (0,255,0), (100, 100), rotate((100,100),(100,199),math.radians(angle)), 5)
                 self.screen.blit(_surf, surf[1])
+    def add_tab(self, name, id, setactive = False):
+        n = 0 
+        tabheight = 
+        for surf in self.surfs:
+             if any(_ == tabuuid for _ in surf):
+                 n+=1
+        
     def button_collide(self, button, mouse_pos):
         surf = self.surfs[button][0]
         pos = self.surfs[button][1]

@@ -16,10 +16,10 @@ class Gearblocks:
         self.connection_refresh = 0 # frames since we last checked if the game is still listening
         self.check_connection_flag = False 
         self.randid = 0
+        self.Active = False
     def update(self, events, _globals:dict):
         ...
     def locate_install(self):
-        
         for driveletter in range(65, 91):
             print(f"Drive: {chr(driveletter)}")
             drive = chr(driveletter) + ":\\"
@@ -32,13 +32,18 @@ class Gearblocks:
                         print(os.path.exists(os.path.join(self.install_path, "BepInEx")))
                         _ = os.listdir(os.path.join(self.install_path, "BepInEx"))
                         if not os.path.exists(os.path.join(self.install_path, "BepInEx")):
-                            print(os.path.exists(os.path.join(self.install_path, "BepInEx")))
+                            print(os.path.exists(os.path.join(self.install_path, "BepInEx"))) 
                             popup("BepInEx not found, please install it.")
-                            raise Exception("BepInEx not found, please install it.")
+                            return False
                         else:
-                            return
-        raise Exception("Gearblocks installation not found.")
+                            self.Active = True
+                            return True
+        popup("Geablocks not found. Starting with no hook.")
+        return False
+        #raise Exception("Gearblocks installation not found.")
     def get_log(self, lines = 0, start = 0, flip = True):
+        if not self.Active:
+            return None
         self.logfile = open(self.logpath, "r")
         if not os.path.exists(self.logpath):
             raise Exception("Log file not found.")
@@ -57,6 +62,8 @@ class Gearblocks:
     def write_file(self, uid:int, updateCranks:bool = False, updateHeads:bool = False,\
         crankangles:list[int] = [0], MaxVE:list[int] = [0], VERpm:list[int] = [2500], MaxRPM:list[int] = [3000],\
         ExEffect:list[float] = [.5], Lambda:list[float] = [.5], FiringOrder:list[int] = [1], DoublePitch:list[bool] = [False], ):
+        if not self.Active:
+            return None
         self.codefile = open(self.logpath, "w")
         self.codefile.write(f"""local _ = {"{"+"}"}
 
