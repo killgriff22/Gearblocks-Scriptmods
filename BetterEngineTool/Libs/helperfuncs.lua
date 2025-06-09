@@ -24,6 +24,9 @@ local CylAssetNames = {
     "Engine Cylinder 1x1"
 }
 
+local ThrottleAssetName = "Engine ThrottleBody x1"
+
+
 local function IsCrank(part)
     for name in CrankAssetNames do
         if name == part.AssetName then
@@ -62,7 +65,12 @@ local function printw(str, linecount)
     return linecount + 1
 end
 
-
+local function IsThrottle(part)
+    if part.AssetName == ThrottleAssetName then
+        return true
+    end
+    return false
+end
 local openingtag = "--__--!!"
 local closingtag = "~~__~~!!"
 local sepr = "=="
@@ -98,14 +106,20 @@ local function HeadOutput(index, uid, lambda, maxrpm, maxve, peakve, exeffct, or
     return cnt
 end
 
-
+local function denil(obj)
+    if not obj or obj == nil then
+        return "nil"
+    end
+    return obj
+end
 
 funcs.IsCrank = IsCrank
 funcs.IsRearCrank = IsRearCrank
 funcs.IsHead = IsHead
 funcs.IsCyl = IsCyl
+funcs.IsThrottle = IsThrottle
 funcs.CrankOutput = CrankOutput
 funcs.HeadOutput = HeadOutput
 funcs.print = printw
-
+funcs.denil = denil
 return funcs

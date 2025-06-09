@@ -2,13 +2,15 @@ from utils import *
 
 class Gearblocks:
     def __init__(self):
+        self.Active = False
         self.locate_install()
         self.instanceID = int(random.random()*10000)//1
-        self.logpath = os.path.join(self.install_path, "BepInEx", "LogOutput.log")
-        self.codepath = os.path.join(self.install_path, "EFI Tuning", "Update.lua")
-        self.logfile = None
-        self.codefile = None
-        self.log_line = 0
+        if self.Active:
+            self.logpath = os.path.join(self.install_path, "BepInEx", "LogOutput.log")
+            self.codepath = os.path.join(self.install_path, "EFI Tuning", "Update.lua")
+            self.logfile = None
+            self.codefile = None
+            self.log_line = 0
         self.connected = False # if we should check the connection
         self.part_select_timer = 0
         self.part_select_timer_max = fps
@@ -16,7 +18,6 @@ class Gearblocks:
         self.connection_refresh = 0 # frames since we last checked if the game is still listening
         self.check_connection_flag = False 
         self.randid = 0
-        self.Active = False
     def update(self, events, _globals:dict):
         ...
     def locate_install(self):

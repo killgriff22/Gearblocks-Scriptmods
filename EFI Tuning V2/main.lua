@@ -91,13 +91,13 @@ function Update()
                         local head = construction.GetPart(id)
                         local behaviour = head.Behaviours[1]
                         --get the tweakable values from the head
-                        local maxrpm = behaviour.GetTweakable("Max RPM")
-                        local order = behaviour.GetTweakable("Firing Order")
-                        local maxve = behaviour.GetTweakable("Peak Volumetric Efficiency")
-                        local peakve = behaviour.GetTweakable("Peak Volumetric Efficiency RPM")
-                        local lambda = behaviour.GetTweakable("Lambda")
+                        local maxrpm  = behaviour.GetTweakable("Max RPM")
+                        local order   = behaviour.GetTweakable("Firing Order")
+                        local maxve   = behaviour.GetTweakable("Peak Volumetric Efficiency")
+                        local peakve  = behaviour.GetTweakable("Peak Volumetric Efficiency RPM")
+                        local lambda  = behaviour.GetTweakable("Lambda")
                         local exeffct = behaviour.GetTweakable("Exhaust Effect Amount")
-                        local double = behaviour.GetTweakable("Double Audio Pitch")
+                        local double  = behaviour.GetTweakable("Double Audio Pitch")
                         -- maxrpm - MaxRpm
                         -- order - FiringOrder
                         -- maxve - MaxVE
