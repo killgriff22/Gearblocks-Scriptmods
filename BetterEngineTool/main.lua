@@ -10,6 +10,7 @@ local keyflag = false
 local key = "tab"
 local crank_ids = {}
 local head_ids = {}
+local throttle_ids = {}
 local savedcontructionid = nil
 local numcyls = 0
 local TableWin_open = false
@@ -29,6 +30,10 @@ local setpve = false
 local setlbd = false
 local setxft = false
 local setdbl = false
+local setidlemin = false
+local setidlerpm = false
+local setkeystoggle = false
+local setfreecontrol = false
 local IdleminEntry
 local idlerpmEntry
 local keystogggleEntry
@@ -138,25 +143,37 @@ local function locateEngine()
     end
 end
 local function applymaxrpm()
-setrpm = true
+	setrpm = true
 end
 local function applyorder()
-setfro = true
+	setfro = true
 end
 local function applymaxve()
-setmve = true
+	setmve = true
 end
 local function applypeakve()
-setpve = true
+	setpve = true
 end
 local function applylambda()
-setlbd = true
+	setlbd = true
 end
 local function applyexeffct()
-setxft = true
+	setxft = true
 end
 local function applydouble()
-setdbl = true
+	setdbl = true
+end
+local function applyidlemin()
+	setidlemin = true
+end
+local function applyidlerpm()
+	setidlerpm = true
+end
+local function applykeystoggle()
+	setkeystoggle = true
+end
+local function applyfreecontrol()
+	setfreecontrol = true
 end
 local function spawnTableWin()
 	local rowidx = 0
@@ -261,21 +278,28 @@ local function spawnThrtlWin()
 		end
 	end
 	ThrtlWin_open = true
-	ThrtlWin = WindowMan.CreateWindow(itemwidth*2+(itemwidth/3), itemheight*8, destroyThrtlWin)
+	ThrtlWin = WindowMan.CreateWindow(itemwidth*2+(itemwidth/3), itemheight*5, destroyThrtlWin)
 	ThrtlWin.Title = "Throttle Tuning"
 	for part in constrct.Parts do
 		if helperlib.IsThrottle(part) then
+			throttle_ids[#throttle_ids+1] = part.Idx
 			local behaviour = part.Behaviours[2]
 			local Idlemin = behaviour.GetTweakable("Idle Control Min %").Value
 			local idlerpm = behaviour.GetTweakable("Idle RPM").Value
 			local keystogggle = behaviour.GetTweakable("Keys Toggle Activation").Value
 			local freecontrol = behaviour.GetTweakable("Player Only Has Control When Seated").Value
-			local controlkey = behaviour.GetTweakable("Control Key").Value
-			IdleminEntry = WindowMan.CreateLabelledInputField(0, rowidx*itemheight, itemwidth*2-setbuttonwidth, itemheight, "TBD", ThrtlWin, Idlemin)
-			idlerpmEntry = WindowMan.CreateLabelledInputField(0, rowidx*itemheight, itemwidth*2-setbuttonwidth, itemheight, "TBD", ThrtlWin, idlerpm)
-			keystogggleEntry = WindowMan.CreateLabelledInputField(0, rowidx*itemheight, itemwidth*2-setbuttonwidth, itemheight, "TBD", ThrtlWin, keystogggle)
-			freecontrolEntry = WindowMan.CreateLabelledInputField(0, rowidx*itemheight, itemwidth*2-setbuttonwidth, itemheight, "TBD", ThrtlWin, freecontrol)
-			controlkeyEntry = WindowMan.CreateLabelledDropdown(0, rowidx*itemheight, itemwidth*2-setbuttonwidth, itemheight, "TBD", ThrtlWin, )
+			IdleminEntry = WindowMan.CreateLabelledInputField(0, rowidx*itemheight, itemwidth*2-setbuttonwidth, itemheight, "Idle Minimum Open %", ThrtlWin, Idlemin)
+			WindowMan.CreateButton((itemwidth*2+(itemwidth/3))-setbuttonwidth, itemheight*rowidx, setbuttonwidth, itemheight, "Set", HeadWin, applyidlemin)
+			rowidx = rowidx + 1
+			idlerpmEntry = WindowMan.CreateLabelledInputField(0, rowidx*itemheight, itemwidth*2-setbuttonwidth, itemheight, "Idle RPM", ThrtlWin, idlerpm)
+			WindowMan.CreateButton((itemwidth*2+(itemwidth/3))-setbuttonwidth, itemheight*rowidx, setbuttonwidth, itemheight, "Set", HeadWin, applyidlerpm)
+			rowidx = rowidx + 1
+			keystogggleEntry = WindowMan.CreateLabelledToggle(0, rowidx*itemheight, itemwidth*2-setbuttonwidth, itemheight, "Keys Toggle Activation", ThrtlWin, keystogggle)
+			WindowMan.CreateButton((itemwidth*2+(itemwidth/3))-setbuttonwidth, itemheight*rowidx, setbuttonwidth, itemheight, "Set", HeadWin, applykeystoggle)
+			rowidx = rowidx + 1  
+			freecontrolEntry = WindowMan.CreateLabelledToggle(0, rowidx*itemheight, itemwidth*2-setbuttonwidth, itemheight, "Player Only Has Control When Seated", ThrtlWin, freecontrol)
+			WindowMan.CreateButton((itemwidth*2+(itemwidth/3))-setbuttonwidth, itemheight*rowidx, setbuttonwidth, itemheight, "Set", HeadWin, applyfreecontrol)
+			rowidx = rowidx + 1  
 		end
 	end
 end
@@ -381,6 +405,28 @@ function Update()
 					head_behave.SyncTweakables()
 				end
 			end
+		end
+		if ThrtlWin_open then
+			for id in throttle_ids do
+				local Throttle = constrct.GetPart(id)
+				local throttle_behave = Throttle.Behaviours[2]
+				if setidlemin then
+					throttle_behave.GetTweakable("Idle Control Min %").Value = tonumber(IdleminEntry.Value)
+				end
+				if setidlerpm then
+					throttle_behave.GetTweakable("Idle RPM").Value = tonumber(idlerpmEntry.Value)
+				end
+				if setkeystoggle then
+					throttle_behave.GetTweakable("Keys Toggle Activation").Value = keystogggleEntry.Value
+				end
+				if setfreecontrol then
+					throttle_behave.GetTweakable("Player Only Has Control When Seated").Value = freecontrolEntry.Value
+				end
+			end
+			setidlemin = false
+			setidlerpm = false
+			setkeystoggle = false
+			setfreecontrol = false
 		end
 	end
 end
