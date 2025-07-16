@@ -8,9 +8,9 @@ local Keylib = loadfile(Standardliblocation.."Keylib.lua")()
 
 
 local keybinds = {
-    Spawn = {Keys = {"left shift","f"}, pressed = false},
-    Delete = {Keys = {"left shift","g"}, pressed = false},
-    Toggle = {Keys = {"left shift","h"}, pressed = false, toggled = false},
+    Spawn = {Keys = {"left shift","g"}, pressed = false},
+    --Delete = {Keys = {"left shift","g"}, pressed = false},
+    --Toggle = {Keys = {"left shift","h"}, pressed = false, toggled = false},
 }
 local buttonwidth = 300
 local buttonheight = 30
@@ -67,7 +67,7 @@ function Update()
                 0, 
                 0
             )
-            local part = Partlib.SpawnPart(Partlib.ICategories[categorydropdown.Value+1][partdropdown.Value+1][], position, rotation, localplayer )
+            local part = Partlib.SpawnPart(Partlib.ICategories[categorydropdown.Value+1][partdropdown.Value+1], position, rotation, localplayer )
         elseif not Spawn_pressed then
             keybinds.Spawn.pressed = false
         end

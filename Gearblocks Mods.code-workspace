@@ -1,19 +1,16 @@
 {
 	"folders": [
 		{
-			"path": "../../../../../../../../Program Files (x86)/Steam/steamapps/common/GearBlocks"
+			"path": "D:/SteamLibrary/steamapps/common/GearBlocks"
 		},
 		{
-			"path": "../../../../../../../../Program Files (x86)/Steam/steamapps/workshop/content/1305080"
+			"path": "D:/SteamLibrary/steamapps/workshop/content/1305080"
 		},
 		{
 			"path": "."
 		},
 		{
-			"path": "PartDumper"
-		},
-		{
-			"path": "StandardLib"
+			"path": "D:/SteamLibrary/steamapps/workshop/content/1305080/3507800887"
 		},
 		{
 			"path": "BuilderTool"

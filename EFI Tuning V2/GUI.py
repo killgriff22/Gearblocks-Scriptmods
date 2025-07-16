@@ -44,7 +44,10 @@ while True:
         
     a+=mod  # Increment a, reset if it exceeds max1
     current_fps = int(window.clock.get_fps() // 1)  # Get the current FPS
-    fps_surf = font.render(f"FPS: {current_fps:.2f}", True, (255, 255, 255))
+    weight = .95
+    if  current_fps > fps / weight:
+        fps = current_fps
+    fps_surf = font.render(f"FPS: {current_fps:.2f} a:{a} ref { fps * weight} { fps / weight} {fps} log line {Gearblocks.log_line}", True, (255, 255, 255))
     window.screen.blit(fps_surf, (0, 0))  # Display the FPS in the top-left corner
     window.draw_surfs()  # Draw all surfaces
     window.surfs[gauge][2] = a  # Add a 0 to the surf list to indicate it's a gauge

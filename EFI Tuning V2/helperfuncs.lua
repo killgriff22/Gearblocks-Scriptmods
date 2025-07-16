@@ -57,45 +57,37 @@ local function IsCyl(part)
     return false
 end
 
-local function printw(str, linecount)
-    print(str)
-    return linecount + 1
-end
-
-
 local openingtag = "--__--!!"
 local closingtag = "~~__~~!!"
 local sepr = "=="
 
 
-local function CrankOutput(index, uid, angle, type, rpm, trq, pwr, cnt)
+local function CrankOutput(index, uid, angle, type, rpm, trq, pwr)
     rpm = rpm or nil
     trq = trq or nil
     pwr = pwr or nil
-    cnt = printw(openingtag .. uid .. sepr .. type, cnt)
-    cnt = printw(angle, cnt)
-    cnt = printw(rpm, cnt)
-    cnt = printw(trq, cnt)
-    cnt = printw(pwr, cnt)
-    cnt = printw(closingtag .. uid .. sepr .. type, cnt)
-    return cnt
+    print(openingtag .. uid .. sepr .. type)
+    print(angle)
+    print(rpm)
+    print(trq)
+    print(pwr)
+    print(closingtag .. uid .. sepr .. type)
 end
 
-local function HeadOutput(index, uid, lambda, maxrpm, maxve, peakve, exeffct, order, double, ve, ipfr, fr, te, cnt)
-    cnt = printw(openingtag .. uid .. sepr .. "2", cnt)
-    cnt = printw(maxrpm, cnt)
-    cnt = printw(order, cnt)
-    cnt = printw(maxve, cnt)
-    cnt = printw(peakve, cnt)
-    cnt = printw(lambda, cnt)
-    cnt = printw(exeffct, cnt)
-    cnt = printw(double, cnt)
-    cnt = printw(ve, cnt)
-    cnt = printw(ipfr, cnt)
-    cnt = printw(fr, cnt)
-    cnt = printw(te, cnt)
-    cnt = printw(closingtag .. uid .. sepr .. "2", cnt)
-    return cnt
+local function HeadOutput(index, uid, lambda, maxrpm, maxve, peakve, exeffct, order, double, ve, ipfr, fr, te)
+    print(openingtag .. uid .. sepr .. "2")
+    print(maxrpm)
+    print(order)
+    print(maxve)
+    print(peakve)
+    print(lambda)
+    print(exeffct)
+    print(double)
+    print(ve)
+    print(ipfr)
+    print(fr)
+    print(te)
+    print(closingtag .. uid .. sepr .. "2")
 end
 
 
@@ -106,6 +98,5 @@ funcs.IsHead = IsHead
 funcs.IsCyl = IsCyl
 funcs.CrankOutput = CrankOutput
 funcs.HeadOutput = HeadOutput
-funcs.print = printw
 
 return funcs

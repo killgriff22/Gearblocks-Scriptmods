@@ -1,0 +1,8 @@
+{
+  "name": "StandardLibrary",
+  "desc": "A standard library of useful classes and fucntions to make devlopment smother",
+  "tags": [
+    "Debug",
+    "Library"
+  ]
+}

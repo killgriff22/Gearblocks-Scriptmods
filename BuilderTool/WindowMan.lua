@@ -5,11 +5,10 @@ local function CreateWindow(l, w, closefunc, x, y)
     x = x or 80
     y = y or 20
     localwindow = Windows.CreateWindow()
-    localwindow.SetAlignment(align_RightEdge, 20, l)
-    localwindow.SetAlignment(align_TopEdge, 80, w)
+    localwindow.SetAlignment(align_RightEdge, 20, w)
+    localwindow.SetAlignment(align_TopEdge, 80, l)
     localwindow.OnClose.add(closefunc)
     localwindow.Title = ""
-    localwindow.Show(true)
     return localwindow
 end
 local function CreateLabel(x, y, w, h, txt, localwindow)
@@ -40,7 +39,7 @@ end
 local function GenericOnWindowClose()
     UnloadScript.Raise(ScriptName) -- Window closed, so unload this script.
 end
-local function CreateLabelledToggle(x, y, w, h, txt, localwindow, clickfunc)
+local function CreateLabelledToggle(x, y, w, h, txt, localwindow)
     local toggle = localwindow.CreateLabelledToggle()
     toggle.SetAlignment( align_LeftEdge, x, w )
     toggle.SetAlignment( align_TopEdge, y, h )
@@ -51,7 +50,7 @@ local function CreateInputField(x, y, w, h, localwindow, default)
     local input = localwindow.CreateInputField()
     input.SetAlignment( align_LeftEdge, x, w )
     input.SetAlignment( align_TopEdge, y, h )
-    input.Text = default
+    input.Value = default
     return input
 end
 local function CreateLabelledInputField(x, y, w, h, txt, localwindow, default)

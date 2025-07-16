@@ -15,8 +15,9 @@ function SpawnPart(AssetName, position, rotation, size)
     p.SetSize( size )
     return p
 end
+local WindowMan
 
-local WindowMan = require("WindowMan")
+WindowMan = loadfile("../../workshop/content/1305080/3507800887/WindowMan.lua")()
 
 local labelwidth = 100
 local labelheight = 25
@@ -25,4 +26,4 @@ local label_i = 0
 
 local window = WindowMan.CreateWindow(labelwidth*2, labelheight*labels, WindowMan.GenericOnWindowClose)
 
-local radius_label = WindowMan
+local radius_label = WindowMan.CreateLabelledInputField()

@@ -11,7 +11,7 @@ local key = "tab"
 local crank_ids = {}
 local head_ids = {}
 local throttle_ids = {}
-local savedcontructionid = nil
+local savedconstructionid = nil
 local numcyls = 0
 local TableWin_open = false
 local HeadWin_open = false
@@ -38,7 +38,6 @@ local IdleminEntry
 local idlerpmEntry
 local keystogggleEntry
 local freecontrolEntry
-local controlkeyEntry
 local HeadSettings = {
 	maxrpm = {
 		Value = "0"
@@ -62,18 +61,49 @@ local HeadSettings = {
 		Value = false
 	},
 }
-
+local function relocateengine(threshold)
+	threshold = threshold or 2
+	for construction in Constructions.Instances do
+		local likeparts = 0
+        if construction.ID == savedconstructionid then
+			return
+		end
+		local id = construction.ID
+		for part in construction.Parts do
+			for crank_id in crank_ids do
+				if part.Idx == crank_id then
+					likeparts = likeparts + 1
+				end
+			end
+		end
+		if likeparts > threshold then
+			savedconstructionid = id
+			return construction
+		end
+	end
+end
+local function round( val )
+	return math.floor( val + 0.5 )
+end
+local firingOrderTextColour = Colour.__new( 220, 111, 74, 255 )
+local angleTextColour = 'white'
+local textObjects = {}
+local function updateTextObject( i, head )
+	if textObjects[i] == nil then
+		textObjects[i] = TextObjects.CreateTextObject()
+		textObjects[i].Colour = firingOrderTextColour
+	end
+	textObjects[i].Position = head.Part.TransformPoint( head.Part.Bounds.Center );
+	local firingOrderTweakable = head.GetTweakable( "Firing Order" )
+	textObjects[i].Width = 0.075
+	textObjects[i].Height = 0.1
+	textObjects[i].Text = string.format( '%d\n<size=40><color="white>Crank Angle: %d deg</color></size>\n<size=40><color="white">Timing Angle: %d deg</color></size>', firingOrderTweakable.Value, round( head.GetCrankAngle() ), head.TimingAngle )
+	textObjects[i].IsVisible = true
+end
 local function destroyTablewin()
 	if TableWin_open then
 		WindowMan.DestroyWindow(TableWin)
 		TableWin_open = false
-		savedcontructionid = nil
-		crank_ids = {}
-		head_ids = {}
-		rowidx = 0
-		crankentries = {}
-		orderentries = {}
-		numcyls = 0
 	end
 end
 
@@ -95,7 +125,8 @@ local function locateEngine()
 	local player = Playerlib.GetPlayer().Value
 	destroyTablewin()
 	destroyHeadWin()
-	savedcontructionid = nil
+	destroyThrtlWin()
+	savedconstructionid = nil
 	crank_ids = {}
 	head_ids = {}
 	rowidx = 0
@@ -137,9 +168,9 @@ local function locateEngine()
         end
     end
     if isengine then
-        savedcontructionid = targetedConstruction.ID
+        savedconstructionid = targetedConstruction.ID
 	else
-		savedcontructionid = nil
+		savedconstructionid = nil
     end
 end
 local function applymaxrpm()
@@ -179,7 +210,7 @@ local function spawnTableWin()
 	local rowidx = 0
 	local constrct
 	for construction in Constructions.Instances do
-        if construction.ID == savedcontructionid then
+        if construction.ID == savedconstructionid then
 			constrct = construction
 		end
 	end
@@ -193,7 +224,7 @@ local function spawnTableWin()
 		--get the current angle 
 		local cur_angle = behaviour.GetTweakable("Crank Angle Offset")
 		local wrk_angle = cur_angle.Value
-		crankentries[#crankentries+1] = WindowMan.CreateInputField(colidx*(itemwidth / 3), rowidx*itemheight, itemwidth / 3, itemheight, TableWin, wrk_angle)
+		crankentries[#crankentries+1] = {WindowMan.CreateInputField(colidx*(itemwidth / 3), rowidx*itemheight, itemwidth / 3, itemheight, TableWin, wrk_angle), crankid}
 		colidx =  colidx + 2
 		for cyl in behaviour.LinkedCylinders do
 			local cyl_behave = cyl
@@ -219,9 +250,16 @@ local function spawnHeadWin()
 	local constrct
 	local rowidx = 0
 	for construction in Constructions.Instances do
-        if construction.ID == savedcontructionid then
+        if construction.ID == savedconstructionid then
 			constrct = construction
 		end
+	end
+	if constrct == nil then
+		constrct = relocateengine(2)
+	end
+	if constrct == nil then
+		UnloadScript.Raise(ScriptName)
+		return
 	end
 	HeadWin_open = true
 	HeadWin = WindowMan.CreateWindow(itemwidth*2+(itemwidth/3), itemheight*8, destroyHeadWin)
@@ -273,13 +311,21 @@ local function spawnThrtlWin()
 	local constrct
 	local rowidx = 0
 	for construction in Constructions.Instances do
-        if construction.ID == savedcontructionid then
+        if construction.ID == savedconstructionid then
 			constrct = construction
 		end
+	end
+	if constrct == nil then
+		constrct = relocateengine(3)
+	end
+	if constrct == nil then
+		UnloadScript.Raise(ScriptName)
+		return
 	end
 	ThrtlWin_open = true
 	ThrtlWin = WindowMan.CreateWindow(itemwidth*2+(itemwidth/3), itemheight*5, destroyThrtlWin)
 	ThrtlWin.Title = "Throttle Tuning"
+	local setbuttonwidth = 40
 	for part in constrct.Parts do
 		if helperlib.IsThrottle(part) then
 			throttle_ids[#throttle_ids+1] = part.Idx
@@ -288,18 +334,19 @@ local function spawnThrtlWin()
 			local idlerpm = behaviour.GetTweakable("Idle RPM").Value
 			local keystogggle = behaviour.GetTweakable("Keys Toggle Activation").Value
 			local freecontrol = behaviour.GetTweakable("Player Only Has Control When Seated").Value
-			IdleminEntry = WindowMan.CreateLabelledInputField(0, rowidx*itemheight, itemwidth*2-setbuttonwidth, itemheight, "Idle Minimum Open %", ThrtlWin, Idlemin)
-			WindowMan.CreateButton((itemwidth*2+(itemwidth/3))-setbuttonwidth, itemheight*rowidx, setbuttonwidth, itemheight, "Set", HeadWin, applyidlemin)
+			IdleminEntry = WindowMan.CreateLabelledInputField(0, rowidx*itemheight, itemwidth*2-setbuttonwidth, itemheight, "Idle %", ThrtlWin, Idlemin)
+			WindowMan.CreateButton((itemwidth*2+(itemwidth/3))-setbuttonwidth, itemheight*rowidx, setbuttonwidth, itemheight, "Set", ThrtlWin, applyidlemin)
 			rowidx = rowidx + 1
 			idlerpmEntry = WindowMan.CreateLabelledInputField(0, rowidx*itemheight, itemwidth*2-setbuttonwidth, itemheight, "Idle RPM", ThrtlWin, idlerpm)
-			WindowMan.CreateButton((itemwidth*2+(itemwidth/3))-setbuttonwidth, itemheight*rowidx, setbuttonwidth, itemheight, "Set", HeadWin, applyidlerpm)
+			WindowMan.CreateButton((itemwidth*2+(itemwidth/3))-setbuttonwidth, itemheight*rowidx, setbuttonwidth, itemheight, "Set", ThrtlWin, applyidlerpm)
 			rowidx = rowidx + 1
 			keystogggleEntry = WindowMan.CreateLabelledToggle(0, rowidx*itemheight, itemwidth*2-setbuttonwidth, itemheight, "Keys Toggle Activation", ThrtlWin, keystogggle)
-			WindowMan.CreateButton((itemwidth*2+(itemwidth/3))-setbuttonwidth, itemheight*rowidx, setbuttonwidth, itemheight, "Set", HeadWin, applykeystoggle)
+			WindowMan.CreateButton((itemwidth*2+(itemwidth/3))-setbuttonwidth, itemheight*rowidx, setbuttonwidth, itemheight, "Set", ThrtlWin, applykeystoggle)
 			rowidx = rowidx + 1  
 			freecontrolEntry = WindowMan.CreateLabelledToggle(0, rowidx*itemheight, itemwidth*2-setbuttonwidth, itemheight, "Player Only Has Control When Seated", ThrtlWin, freecontrol)
-			WindowMan.CreateButton((itemwidth*2+(itemwidth/3))-setbuttonwidth, itemheight*rowidx, setbuttonwidth, itemheight, "Set", HeadWin, applyfreecontrol)
-			rowidx = rowidx + 1  
+			WindowMan.CreateButton((itemwidth*2+(itemwidth/3))-setbuttonwidth, itemheight*rowidx, setbuttonwidth, itemheight, "Set", ThrtlWin, applyfreecontrol)
+			rowidx = rowidx + 1
+			return
 		end
 	end
 end
@@ -328,41 +375,33 @@ function Update()
         keyflag = false
     end
 	-- if we have an engine
-	pickbutton.Text = string.format("<color=%s>Select Construction (TAB), (%s)</color>", savedcontructionid and '#66ff66' or '#ff6666', helperlib.denil(savedcontructionid))
-	if savedcontructionid then
+	pickbutton.Text = string.format("<color=%s>Select Construction (TAB), (%s)</color>", savedconstructionid and '#66ff66' or '#ff6666', helperlib.denil(savedconstructionid))
+	if savedconstructionid then
 		local constrct
 		for construction in Constructions.Instances do
-    	    if construction.ID == savedcontructionid then
+    	    if construction.ID == savedconstructionid then
 				constrct = construction
 			end
 		end
 		if TableWin_open then
-			for i, crankid in ipairs(crank_ids) do
-				local crankentry = crankentries[i]
-				if crankentry then
-					local crank = constrct.GetPart(crankid)
-					if not crank then
-						return
-					end
-					local crank_behave = crank.Behaviours[1]
-					local cur_angle = crank_behave.GetTweakable("Crank Angle Offset")
-					if not crankentry.Value == "" then
-						cur_angle.Value = tonumber(crankentry.Value)
-						crank_behave.SyncTweakables()
-					end
-					for cyl_behave in crank_behave.LinkedCylinders do
-						local head = cyl_behave.Head.Part
-						local head_behave = head.Behaviours[1]
-						local order = head_behave.GetTweakable("Firing Order")
-						for i_, entry in ipairs (orderentries) do
-							if head.Idx == entry[2] then
-								if not order.Value == "" then
-									order.Value = tonumber(entry[1].Value)
-									head_behave.SyncTweakables()
-								end
-							end
-						end
-					end
+			for crankentry in crankentries do
+				local crank = constrct.GetPart(crankentry[2])
+				local crank_behave = crank.Behaviours[1]
+				local cur_angle = crank_behave.GetTweakable("Crank Angle Offset")
+				--print(tonumber(crankentry[1].Value) == nil, not (tonumber(crankentry[1].Value) == nil))
+				if not (tonumber(crankentry[1].Value) == nil) then
+					cur_angle.Value = tonumber(crankentry[1].Value)
+					crank_behave.SyncTweakables()
+				end
+				--crankentry[1].Value = crank_behave.GetTweakable("Crank Angle Offset").Value
+			end
+			for headentry in orderentries do
+				local head = constrct.GetPart(headentry[2])
+				local head_behave = head.Behaviours[1]
+				local order = head_behave.GetTweakable("Firing Order")
+				if not (tonumber(headentry[1].Value) == nil) then
+					order.Value = tonumber(headentry[1].Value)
+					head_behave.SyncTweakables()
 				end
 			end
 		end
@@ -409,6 +448,9 @@ function Update()
 		if ThrtlWin_open then
 			for id in throttle_ids do
 				local Throttle = constrct.GetPart(id)
+				if not Throttle then
+					return
+				end
 				local throttle_behave = Throttle.Behaviours[2]
 				if setidlemin then
 					throttle_behave.GetTweakable("Idle Control Min %").Value = tonumber(IdleminEntry.Value)
@@ -428,6 +470,14 @@ function Update()
 			setkeystoggle = false
 			setfreecontrol = false
 		end
+		for headid in head_ids do
+			local head = constrct.GetPart(headid)
+			if not head then
+				return
+			end
+			local head_behave = head.Behaviours[1]
+			updateTextObject( head.Idx, head_behave )
+		end
 	end
 end
 
@@ -437,11 +487,17 @@ end
 
 
 function Cleanup()
+	for textObject in textObjects do
+		TextObjects.ReleaseTextObject( textObject )
+	end
 	if HeadWin then
 		WindowMan.DestroyWindow(HeadWin)
 	end
 	if TableWin then
 		WindowMan.DestroyWindow(TableWin)
+	end
+	if ThrtlWin then
+		WindowMan.DestroyWindow(ThrtlWin)
 	end
 	WindowMan.DestroyWindow(MainWin)
 end

@@ -1,9 +1,10 @@
 {
-  "name": "BuildTools",
-  "desc": "improved version of the buildertoolext script from the base game.\nMade by thisisx_x on discord\nFeatures welding, improved colliision management, and some general part information.\nAlso includes the pivot snap function from the buildertoolext.\nTest build, please report bugs to thisisx_x on discord.",
+  "name": "BuildTools V2",
+  "desc": "An improved set of tools for managing collisions, welding, and using the buildertoolext\nBeta build. Please report bugs to thisisx-x in the gearblocks discord.",
   "tags": [
     "Building",
-    "ScriptMod"
+    "ScriptMod",
+    "thisisx-x"
   ],
-  "publishedID": 3437455739
+  "publishedID": 3508450425
 }
