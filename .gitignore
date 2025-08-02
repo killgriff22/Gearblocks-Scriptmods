@@ -1,5 +1,6 @@
 gitpush.sh
 *.*z*
+*.z*
 *.tar*
 */bin
 */include
