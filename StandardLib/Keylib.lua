@@ -1,4 +1,5 @@
-Keys = {
+Keylib = {}
+Keylib.Keys = {
     "backspace",
     "delete",
     "tab",
@@ -486,6 +487,18 @@ Keys = {
     "joystick 16 button 17",
     "joystick 16 button 18",
     "joystick 16 button 19",}
-Keylib = {}
-Keylib.Keys = Keys
+
+function Keylib.GetKey ()
+    local keys_pressed = {}
+    local n = 1
+    for key in Keylib.Keys do
+        if Input.GetKey(key) then
+            keys_pressed[n] = key
+        end
+    end
+    return keys_pressed
+end 
+
+
+
 return Keylib

@@ -42,8 +42,13 @@ local endutton = CreateButton(0,buttonheight*2,buttonwidth,buttonheight,"End",wi
 end)
 local deletebutton = CreateButton(0,buttonheight*3,buttonwidth,buttonheight,"DeleteParts",window,function()
     parts = 0
+    local ids = {}
+    local n = 0
     for part in Parts.Instances do
-        PopConstructions.DestroyPart (part.ID)
+        ids[n] = part.ID
+    end
+    for id in ids do
+        PopConstructions.DestroyPart (id)
     end
 end)
 

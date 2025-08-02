@@ -1,0 +1,9 @@
+{
+  "name": "PixelDisplay",
+  "desc": "This mod implements a ingame display using light parts.\nIt relies on a file in your gearblocks root folder, and a python application to generate this file.\nvisit the github page for details on how to use and configure this mod\n\nhttps://github.com/killgriff22/GearblocksVideoPlayer",
+  "tags": [
+    "scriptmod",
+    "thisisx-x"
+  ],
+  "publishedID": 3533429455
+}

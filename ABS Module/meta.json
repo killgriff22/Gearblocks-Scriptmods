@@ -1,8 +1,9 @@
 {
-    "name": "ABS Module",
-    "desc": "simulating an abs module, proof of concept.",
-    "tags": [
-      "Building",
-      "ScriptMod"
-    ]
-  }
+  "name": "ABS Module",
+  "desc": "simulating an abs module, proof of concept.",
+  "tags": [
+    "Building",
+    "ScriptMod"
+  ],
+  "publishedID": 3534566461
+}
