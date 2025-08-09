@@ -1,7 +1,0 @@
-{
-    "name": "HotReloader",
-    "desc": "Lets you press a button to relaod a script without pausing the game.",
-    "tags": [
-      "debugging"
-    ]
-  }

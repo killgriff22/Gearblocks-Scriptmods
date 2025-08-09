@@ -1,3 +1,4 @@
+
 local WindowMan = require("WindowMan")
 
 local win = WindowMan.CreateWindow(480, 640, WindowMan.GenericOnWindowClose)

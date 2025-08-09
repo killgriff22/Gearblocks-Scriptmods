@@ -12,15 +12,6 @@
 		{
 			"path": "D:/SteamLibrary/steamapps/workshop/content/1305080/3507800887"
 		},
-		{
-			"path": "BuilderTool"
-		},
-		{
-			"path": "TranslationLayers"
-		},
-		{
-			"path": "QuickSpawner"
-		}
 	],
 	"settings": {
 		"python.languageServer": "Pylance",
