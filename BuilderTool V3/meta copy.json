@@ -1,0 +1,10 @@
+{
+  "name": "BuildTools V2",
+  "desc": "An improved set of tools for managing collisions, welding, and using the buildertoolext\nBeta build. Please report bugs to thisisx-x in the gearblocks discord.",
+  "tags": [
+    "Building",
+    "ScriptMod",
+    "thisisx-x"
+  ],
+  "publishedID": 3508450425
+}

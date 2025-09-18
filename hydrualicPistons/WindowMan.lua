@@ -4,8 +4,8 @@ local function CreateWindow(l, w, closefunc,x,y)
     x = x or 80
     y = y or 20
     localwindow = Windows.CreateWindow()
-    localwindow.SetAlignment(align_RightEdge, x, l)
-    localwindow.SetAlignment(align_TopEdge, y, w)
+    localwindow.SetAlignment(align_RightEdge, 0, w)
+    localwindow.SetAlignment(align_TopEdge, 0, l)
     localwindow.OnClose.add(closefunc)
     localwindow.Title = ""
     localwindow.Show(true)

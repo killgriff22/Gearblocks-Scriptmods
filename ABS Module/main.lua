@@ -35,7 +35,7 @@ local MaxPressureInput
 local MinPressure = 0
 local MinPressureInput
 local TriggerMode = false
-local TriggerValueDs = 1000
+local TriggerValueRPM = 100
 local ThresholdVelocity = 10
 local TriggerValueInput
 local TriggerValueLabel
@@ -45,228 +45,282 @@ math.round = function ( number, precision )
     return tonumber( string.format( string.format( '%%0.%df', precision ), number ) )
 end
 
-local function pickPart()
+local SensorFilter = {
+        "Wheel Aircraft 2 5x9",
+        "Wheel Aircraft 2x6",
+        "Wheel Car 2 5x6 5",
+        "Wheel Car 2 5x7",
+        "Wheel Car 2x6 5",
+        "Wheel Car 2x7",
+        "Wheel Car 2x8",
+        "Wheel Car 3x6 5",
+        "Wheel Offroad 5x15",
+        "Wheel Offroad 5 5x11",
+        "Wheel Motorcycle 1x8",
+        "Wheel Gokart 2x5",
+        "Wheel Gokart 2 5x4",
+        "Wheel Car 4x8",
+        "Wheel Car 3x8",
+        "Wheel Car 3x7",
+        "Wheel Offroad 5x18",
+        "Wheel Offroad 10x16",
+        "Wheel Racing 4x8",
+        "Wheel Racing 5x8",
+        "Wheel Trolley 1x3",
+        "Wheel Truck 2 5x9",
+        "Wheel Truck 3x11",
+        "Sensor Angle",
+}
+
+local BrakeFilter = {
+        "Wheel Aircraft 2.5x9",
+        "Wheel Car 2.5x6.5",
+        "Wheel Car 2.5x7",
+        "Wheel Car 2x6.5",
+        "Wheel Car 2x7",
+        "Wheel Car 2x8",
+        "Wheel Car 3x6.5",
+        "Wheel Offroad 5.5x11",
+        "Wheel Gokart 2x5",
+        "Wheel Car 4x8",
+        "Wheel Car 3x8",
+        "Wheel Car 3x7",
+        "Wheel Racing 4x8",
+        "Wheel Racing 5x8",
+        "Wheel Truck 2.5x9",
+        "Wheel Truck 3x11",
+        "Brake Disk x4",
+        "Brake Disk x3"
+}
+
+local function _pickPart()
     local Player = Playerlib.GetPlayer().Value
     local TargetedPart = Playerlib.GetTargetedPart(Player)
     if TargetedPart then
-        if TargetedPart.AssetName == "Sensor Angle" then
-            return {TargetedPart, true}
-        elseif TargetedPart.AssetName == "Brake Disk x4" then
-            return {TargetedPart, false}
-        elseif TargetedPart.AssetName == "Brake Disk x3" then
-            return {TargetedPart, false}
+        for Bfilter in BrakeFilter do
+            if TargetedPart.AssetName == Bfilter then
+                for Sfilter in BrakeFilter do
+                    if TargetedPart.AssetName == Sfilter then
+                        return {TargetedPart, nil}
+                    end
+                end
+                return {TargetedPart, false}
+            end
+        end
+        for Sfilter in BrakeFilter do
+            if TargetedPart.AssetName == Sfilter then
+                return {TargetedPart, true}
+            end
         end
     else
         return {nil, nil}
     end
 end
+local function pickPart()
+    local _ = _pickPart()
+    print(_[1],_[2])
+    return _
+end
 
-local function pickFRBrake()
+local function pickFR()
     local part = pickPart()
-    if not part[2] then
+    if part[1] == nil then
+        return
+    end
+    if part[2] == true then
+        FRSensor = part[1]
+    elseif part[2] == false then
+        FRBrake = part[1]
+    elseif part[2] == nil then
+        FRSensor = part[1]
         FRBrake = part[1]
     end
 end
-local function pickFRSensor()
+local function pickFL()
     local part = pickPart()
-    if part[2] then
-        FRSensor = part[1]
+    if part[1] == nil then
+        return
     end
-end
-local function pickFLBrake()
-    local part = pickPart()
-    if not part[2] then
+    if part[2] == true then
+        FLSensor = part[1]
+    elseif part[2] == false then
+        FLBrake = part[1]
+    elseif part[2] == nil then
+        FLSensor = part[1]
         FLBrake = part[1]
     end
 end
-local function pickFLSensor()
+local function pickRR()
     local part = pickPart()
-    if part[2] then
-        FLSensor = part[1]
+    if part[1] == nil then
+        return
     end
-end
-local function pickRRBrake()
-    local part = pickPart()
-    if not part[2] then
+    if part[2] == true then
+        RRSensor = part[1]
+    elseif part[2] == false then
+        RRBrake = part[1]
+    elseif part[2] == nil then
+        RRSensor = part[1]
         RRBrake = part[1]
     end
 end
-local function pickRRSensor()
+local function pickRL()
     local part = pickPart()
-    if part[2] then
-        RRSensor = part[1]
+    if part[1] == nil then
+        return
     end
-end
-local function pickRLBrake()
-    local part = pickPart()
-    if not part[2] then
+    if part[2] == true then
+        RLSensor = part[1]
+    elseif part[2] == false then
+        RLBrake = part[1]
+    elseif part[2] == nil then
+        RLSensor = part[1]
         RLBrake = part[1]
     end
 end
-local function pickRLSensor()
-    local part = pickPart()
-    if part[2] then
-        RLSensor = part[1]
-    end
-end
-local function FRModBrakeForceDegS()
-    if not FRSensor then
-        return
-    end
-    FRSensorButton.Text = "F R Sensor"
-    local angular_speed
-    for channel in FRSensor.Behaviours[1].Channels do
-        if channel.Label == "Angular Speed" then
-            angular_speed = channel.Value
-            FRSensorReadout.Text = math.round(math.abs(angular_speed), 2)
+
+local function GetRPM(part)
+    for b in part.Behaviours do
+        for channel in b.Channels do
+            if channel.Label == "RPM" then
+                return channel.Value
+            end
         end
     end
-    if not FRBrake then
-        return
-    end
-    local Player = Playerlib.GetPlayer().Value
-    local commonpos = Player.Velocity
-    local speed = math.round(commonpos.magnitude * msToKmh, 2)
-    if speed < tonumber(ThresholdVelocityInput.Value) then
-        FRBrake.Behaviours[1].GetTweakable("Peak Torque").Value = tonumber(MaxPressureInput.Value)
-        return
-    end
-    if math.abs(angular_speed) < tonumber(TriggerValueInput.Value) then
-        FRBrake.Behaviours[1].GetTweakable("Peak Torque").Value = tonumber(MinPressureInput.Value)
-        FRSensorButton.Text = "<color=#6666ff>F R Sensor</color>"
-    else
-        FRBrake.Behaviours[1].GetTweakable("Peak Torque").Value = tonumber(MaxPressureInput.Value)
-    end
 end
-local function FLModBrakeForceDegS()
-    if not FLSensor then
-        return
-    end
-    FLSensorButton.Text = "F L Sensor"
-    local angular_speed
-    for channel in FLSensor.Behaviours[1].Channels do
-        if channel.Label == "Angular Speed" then
-            angular_speed = channel.Value
-            FLSensorReadout.Text = math.round(math.abs(angular_speed), 2)
+
+local BrakeBehaviourFilter = {
+    "Brake",
+    "Wheel Brake"
+}
+local function GetBrakeBehaviour(part)
+    for b in part.Behaviours do
+        for filter in BrakeBehaviourFilter do
+            if b.Name == filter then
+                return b
+            end
         end
-    end
-    if not FLBrake then
-        return
-    end
-    local Player = Playerlib.GetPlayer().Value
-    local commonpos = Player.Velocity
-    local speed = math.round(commonpos.magnitude * msToKmh, 2)
-    if speed < tonumber(ThresholdVelocityInput.Value) then
-        FLBrake.Behaviours[1].GetTweakable("Peak Torque").Value = tonumber(MaxPressureInput.Value)
-        return
-    end
-    if math.abs(angular_speed) < tonumber(TriggerValueInput.Value) then
-        FLBrake.Behaviours[1].GetTweakable("Peak Torque").Value = tonumber(MinPressureInput.Value)
-        FLSensorButton.Text = "<color=#6666ff>F L Sensor</color>"
-    else
-        FLBrake.Behaviours[1].GetTweakable("Peak Torque").Value = tonumber(MaxPressureInput.Value)
-    end
-end
-local function RRModBrakeForceDegS()
-    if not RRSensor then
-        return
-    end
-    RRSensorButton.Text = "R R Sensor"
-    local angular_speed
-    for channel in RRSensor.Behaviours[1].Channels do
-        if channel.Label == "Angular Speed" then
-            angular_speed = channel.Value
-            RRSensorReadout.Text = math.round(math.abs(angular_speed), 2)
-        end
-    end
-    if not RRBrake then
-        return
-    end
-    local Player = Playerlib.GetPlayer().Value
-    local commonpos = Player.Velocity
-    local speed = math.round(commonpos.magnitude * msToKmh, 2)
-    if speed < tonumber(ThresholdVelocityInput.Value) then
-        RRBrake.Behaviours[1].GetTweakable("Peak Torque").Value = tonumber(MaxPressureInput.Value)
-        return
-    end
-    if math.abs(angular_speed) < tonumber(TriggerValueInput.Value) then
-        RRBrake.Behaviours[1].GetTweakable("Peak Torque").Value = tonumber(MinPressureInput.Value)
-        RRSensorButton.Text = "<color=#6666ff>R R Sensor</color>"
-    else
-        RRBrake.Behaviours[1].GetTweakable("Peak Torque").Value = tonumber(MaxPressureInput.Value)
-    end
-end
-local function RLModBrakeForceDegS()
-    if not RLSensor then
-        return
-    end
-    RLSensorButton.Text = "R L Sensor"
-    local angular_speed
-    for channel in RLSensor.Behaviours[1].Channels do
-        if channel.Label == "Angular Speed" then
-            angular_speed = channel.Value
-            RLSensorReadout.Text = math.round(math.abs(angular_speed), 2)
-        end
-    end
-    if not RLBrake then
-        return
-    end
-    local Player = Playerlib.GetPlayer().Value
-    local commonpos = Player.Velocity
-    local speed = math.round(commonpos.magnitude * msToKmh, 2)
-    if speed < tonumber(ThresholdVelocityInput.Value) then
-        RLBrake.Behaviours[1].GetTweakable("Peak Torque").Value = tonumber(MaxPressureInput.Value)
-        return
-    end
-    if math.abs(angular_speed) < tonumber(TriggerValueInput.Value) then
-        RLBrake.Behaviours[1].GetTweakable("Peak Torque").Value = tonumber(MinPressureInput.Value)
-        RLSensorButton.Text = "<color=#6666ff>R L Sensor</color>"
-    else
-        RLBrake.Behaviours[1].GetTweakable("Peak Torque").Value = tonumber(MaxPressureInput.Value)
     end
 end
 
 
-
-local function TriggerModeSwitch()
-    if TriggerMode then
-        TriggerModeButton.Text = "Use Deg/s"
-        TriggerValueInput.Value = TriggerValueRpM
-        TriggerValueLabel.Text = "Trigger Value (RPM):"
-    else
-        TriggerModeButton.Text = "Use RPM"
-        TriggerValueInput.Value = TriggerValueDs
-        TriggerValueLabel.Text = "Trigger Value (Deg/s):"
+local function modBrakeForce()  
+    if FRSensor then
+        FRSensorButton.Text = "F R Sensor"
+        local angular_speed = GetRPM(FRSensor)
+        FRSensorReadout.Text = math.round(math.abs(angular_speed), 2)
+        if not FRBrake then
+            return
+        end
+        local Player = Playerlib.GetPlayer().Value
+        local commonpos = Player.Velocity
+        local speed = math.round(commonpos.magnitude * msToKmh, 2)
+        local b = GetBrakeBehaviour(FRBrake)
+        if speed < tonumber(ThresholdVelocityInput.Value) then
+            b.GetTweakable("Peak Torque").Value = tonumber(MaxPressureInput.Value)
+            return
+        end
+        if math.abs(angular_speed) < tonumber(TriggerValueInput.Value) then
+            b.GetTweakable("Peak Torque").Value = tonumber(MinPressureInput.Value)
+            FRSensorButton.Text = "<color=#6666ff>F R Sensor</color>"
+        else
+            b.GetTweakable("Peak Torque").Value = tonumber(MaxPressureInput.Value)
+        end
     end
-    TriggerMode = not TriggerMode
+    if FLSensor then
+        FLSensorButton.Text = "F L Sensor"
+        local angular_speed = GetRPM(FLSensor)
+        FLSensorReadout.Text = math.round(math.abs(angular_speed), 2)
+        if not FLBrake then
+            return
+        end
+        local Player = Playerlib.GetPlayer().Value
+        local commonpos = Player.Velocity
+        local speed = math.round(commonpos.magnitude * msToKmh, 2)
+        local b = GetBrakeBehaviour(FLBrake)
+        if speed < tonumber(ThresholdVelocityInput.Value) then
+            b.GetTweakable("Peak Torque").Value = tonumber(MaxPressureInput.Value)
+            return
+        end
+        if math.abs(angular_speed) < tonumber(TriggerValueInput.Value) then
+            b.GetTweakable("Peak Torque").Value = tonumber(MinPressureInput.Value)
+            FLSensorButton.Text = "<color=#6666ff>F L Sensor</color>"
+        else
+            b.GetTweakable("Peak Torque").Value = tonumber(MaxPressureInput.Value)
+        end
+    end
+    if RRSensor then
+        RRSensorButton.Text = "R R Sensor"
+        local angular_speed = GetRPM(RRSensor)
+        RRSensorReadout.Text = math.round(math.abs(angular_speed), 2)
+        if not RRBrake then
+            return
+        end
+        local Player = Playerlib.GetPlayer().Value
+        local commonpos = Player.Velocity
+        local speed = math.round(commonpos.magnitude * msToKmh, 2)
+        local b = GetBrakeBehaviour(RRBrake)
+        if speed < tonumber(ThresholdVelocityInput.Value) then
+            b.GetTweakable("Peak Torque").Value = tonumber(MaxPressureInput.Value)
+            return
+        end
+        if math.abs(angular_speed) < tonumber(TriggerValueInput.Value) then
+            b.GetTweakable("Peak Torque").Value = tonumber(MinPressureInput.Value)
+            RRSensorButton.Text = "<color=#6666ff>R R Sensor</color>"
+        else
+            b.GetTweakable("Peak Torque").Value = tonumber(MaxPressureInput.Value)
+        end
+    end
+    if RLSensor then
+        RLSensorButton.Text = "R L Sensor"
+        local angular_speed = GetRPM(RLSensor)
+        RLSensorReadout.Text = math.round(math.abs(angular_speed), 2)
+        if not RLBrake then
+            return
+        end
+        local Player = Playerlib.GetPlayer().Value
+        local commonpos = Player.Velocity
+        local speed = math.round(commonpos.magnitude * msToKmh, 2)
+        local b = GetBrakeBehaviour(RLBrake)
+        if speed < tonumber(ThresholdVelocityInput.Value) then
+            b.GetTweakable("Peak Torque").Value = tonumber(MaxPressureInput.Value)
+            return
+        end
+        if math.abs(angular_speed) < tonumber(TriggerValueInput.Value) then
+            b.GetTweakable("Peak Torque").Value = tonumber(MinPressureInput.Value)
+            RLSensorButton.Text = "<color=#6666ff>R L Sensor</color>"
+        else
+            b.GetTweakable("Peak Torque").Value = tonumber(MaxPressureInput.Value)
+        end
+    end
 end
 
-FRBrakeButton = WindowMan.CreateButton(ButtonWidth*2, ButtonHeight*ButtonI, ButtonWidth, ButtonHeight, "F R Brake", w, pickFRBrake)
+FRBrakeButton = WindowMan.CreateButton(ButtonWidth*2, ButtonHeight*ButtonI, ButtonWidth, ButtonHeight, "F R Brake", w, pickFR)
 ButtonI = ButtonI + 1
-FRSensorButton = WindowMan.CreateButton(ButtonWidth*2, ButtonHeight*ButtonI, ButtonWidth, ButtonHeight, "F R Sensor", w, pickFRSensor)
+FRSensorButton = WindowMan.CreateButton(ButtonWidth*2, ButtonHeight*ButtonI, ButtonWidth, ButtonHeight, "F R Sensor", w, pickFR)
 FRSensorReadout = WindowMan.CreateLabel(ButtonWidth+(ButtonWidth-(ButtonWidth/4)),ButtonHeight*ButtonI, (ButtonWidth-(ButtonWidth/4)), ButtonHeight, "0", w)
 ButtonI = ButtonI - 1
-FLBrakeButton = WindowMan.CreateButton(0, ButtonHeight*ButtonI, ButtonWidth, ButtonHeight, "F L Brake", w, pickFLBrake)
+FLBrakeButton = WindowMan.CreateButton(0, ButtonHeight*ButtonI, ButtonWidth, ButtonHeight, "F L Brake", w, pickFL)
 ButtonI = ButtonI + 1
-FLSensorButton = WindowMan.CreateButton(0, ButtonHeight*ButtonI, ButtonWidth, ButtonHeight, "F L Sensor", w, pickFLSensor)
+FLSensorButton = WindowMan.CreateButton(0, ButtonHeight*ButtonI, ButtonWidth, ButtonHeight, "F L Sensor", w, pickFL)
 FLSensorReadout = WindowMan.CreateLabel(ButtonWidth,ButtonHeight*ButtonI, ButtonWidth, ButtonHeight, "0", w)
 ButtonI = ButtonI + 2
-RRBrakeButton = WindowMan.CreateButton(ButtonWidth*2, ButtonHeight*ButtonI, ButtonWidth, ButtonHeight, "R R Brake", w, pickRRBrake)
+RRBrakeButton = WindowMan.CreateButton(ButtonWidth*2, ButtonHeight*ButtonI, ButtonWidth, ButtonHeight, "R R Brake", w, pickRR)
 ButtonI = ButtonI + 1
-RRSensorButton = WindowMan.CreateButton(ButtonWidth*2, ButtonHeight*ButtonI, ButtonWidth, ButtonHeight, "R R Sensor", w, pickRRSensor)
+RRSensorButton = WindowMan.CreateButton(ButtonWidth*2, ButtonHeight*ButtonI, ButtonWidth, ButtonHeight, "R R Sensor", w, pickRR)
 RRSensorReadout = WindowMan.CreateLabel(ButtonWidth+(ButtonWidth-(ButtonWidth/4)),ButtonHeight*ButtonI, (ButtonWidth-(ButtonWidth/4)), ButtonHeight, "0", w)
 ButtonI = ButtonI - 1
-RLBrakeButton = WindowMan.CreateButton(0, ButtonHeight*ButtonI, ButtonWidth, ButtonHeight, "R L Brake", w, pickRLBrake)
+RLBrakeButton = WindowMan.CreateButton(0, ButtonHeight*ButtonI, ButtonWidth, ButtonHeight, "R L Brake", w, pickRL)
 ButtonI = ButtonI + 1
-RLSensorButton = WindowMan.CreateButton(0, ButtonHeight*ButtonI, ButtonWidth, ButtonHeight, "R L Sensor", w, pickRLSensor)
+RLSensorButton = WindowMan.CreateButton(0, ButtonHeight*ButtonI, ButtonWidth, ButtonHeight, "R L Sensor", w, pickRL)
 RLSensorReadout = WindowMan.CreateLabel(ButtonWidth,ButtonHeight*ButtonI, ButtonWidth, ButtonHeight, "0", w)
 ButtonI = ButtonI + 2
 MaxPressureInput = WindowMan.CreateLabelledInputField(0, ButtonHeight*ButtonI, WindowWidth, ButtonHeight, "Max Pressure:" , w, MaxPressure)
 ButtonI = ButtonI + 1
 MinPressureInput = WindowMan.CreateLabelledInputField(0, ButtonHeight*ButtonI, WindowWidth, ButtonHeight, "Min Pressure:" , w, MinPressure)
 ButtonI = ButtonI + 1
-TriggerValueLabel = WindowMan.CreateLabel(0, ButtonHeight*ButtonI, ButtonWidth*2, ButtonHeight, "Trigger Value (Deg/s):", w)
-TriggerValueInput = WindowMan.CreateInputField(ButtonWidth*2, ButtonHeight*ButtonI, ButtonWidth, ButtonHeight, w, TriggerValueDs)
+TriggerValueLabel = WindowMan.CreateLabel(0, ButtonHeight*ButtonI, ButtonWidth*2, ButtonHeight, "Trigger Value (RPM):", w)
+TriggerValueInput = WindowMan.CreateInputField(ButtonWidth*2, ButtonHeight*ButtonI, ButtonWidth, ButtonHeight, w, TriggerValueRPM)
 ButtonI = ButtonI + 1
 ThresholdVelocityLabel = WindowMan.CreateLabel(0, ButtonHeight*ButtonI, ButtonWidth*2, ButtonHeight, "Threshold Velocity (KPH):", w)
 ThresholdVelocityInput = WindowMan.CreateInputField(ButtonWidth*2, ButtonHeight*ButtonI, ButtonWidth, ButtonHeight, w, ThresholdVelocity)
@@ -307,10 +361,7 @@ function Update()
     end
 
     
-    FRModBrakeForceDegS()
-    FLModBrakeForceDegS()
-    RRModBrakeForceDegS()
-    RLModBrakeForceDegS()
+    modBrakeForce()
 end
 
 function Cleanup()

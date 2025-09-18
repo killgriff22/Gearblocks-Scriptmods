@@ -35,7 +35,20 @@ local localplayer = LocalPlayer.value
 local window = CreateWindow(0,0, buttonwidth, buttonheight*5, onWindowClose)
 local partlabel = CreateLabel(0,0,buttonwidth,buttonheight,"Parts: 0",window)
 local startbutton = CreateButton(0,buttonheight,buttonwidth,buttonheight,"Start",window,function()
-    running = true
+    --running = true
+    local c = 1
+    for _ in Constructions.Instances do
+        c = c + 1
+    end
+    local r = math.random(1, c)
+    c = 1
+    for _ in Constructions.Instances do
+        c = c + 1
+        if c == r then
+            ConstructionOps.AssignBuilderPlayerID(_.ID, 0)
+            print("Hit", c, r, _.ID)
+        end
+    end
 end)
 local endutton = CreateButton(0,buttonheight*2,buttonwidth,buttonheight,"End",window,function()
     running = false

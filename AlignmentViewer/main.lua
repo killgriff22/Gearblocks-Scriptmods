@@ -102,15 +102,8 @@ local function GetFL_Wheel()
     end
     for behavior in TargetedPart.Behaviours do
         if behavior.Name == "Wheel" then
-            local parts = TargetedPart.Attachments.GetAttachedParts()
-            for part in parts do
-                for filter in Axles do
-                    if part.AssetName == filter then
-                        FL_Wheel = TargetedPart
-                        return
-                    end
-                end
-            end
+            FL_Wheel = TargetedPart
+            return
         end
     end
 end
@@ -122,15 +115,8 @@ local function GetFR_Wheel()
     end
     for behavior in TargetedPart.Behaviours do
         if behavior.Name == "Wheel" then
-            local parts = TargetedPart.Attachments.GetAttachedParts()
-            for part in parts do
-                for filter in Axles do
-                    if part.AssetName == filter then
-                        FR_Wheel = TargetedPart
-                        return
-                    end
-                end
-            end
+            FR_Wheel = TargetedPart
+            return
         end
     end
 end
@@ -142,15 +128,8 @@ local function GetRL_Wheel()
     end
     for behavior in TargetedPart.Behaviours do
         if behavior.Name == "Wheel" then
-            local parts = TargetedPart.Attachments.GetAttachedParts()
-            for part in parts do
-                for filter in Axles do
-                    if part.AssetName == filter then
-                        RL_Wheel = TargetedPart
-                        return
-                    end
-                end
-            end
+            RL_Wheel = TargetedPart
+            return
         end
     end
 end
@@ -162,15 +141,8 @@ local function GetRR_Wheel()
     end
     for behavior in TargetedPart.Behaviours do
         if behavior.Name == "Wheel" then
-            local parts = TargetedPart.Attachments.GetAttachedParts()
-            for part in parts do
-                for filter in Axles do
-                    if part.AssetName == filter then
-                        RR_Wheel = TargetedPart
-                        return
-                    end
-                end
-            end
+            RR_Wheel = TargetedPart
+            return
         end
     end
 end
@@ -190,21 +162,27 @@ local RL_Wheel_button = WindowMan.CreateButton(0, 275, 40, 25, "Get", win, GetRL
 local RR_Wheel_button = WindowMan.CreateButton(260, 275, 40, 25, "Get", win, GetRR_Wheel)
 local maxtoe = Zero
 
-
-
+math.round = function ( number, precision )
+    return tonumber( string.format( string.format( '%%0.%df', precision ), number ) )
+end
+local mod = -25
 local function Update_Wheel(part, toe_line, camber_line)
     if part then
         local Player = Playerlib.GetPlayer().Value
-        local Forward = Vector3.Normalize(Player.Orientation.EulerAngles)
-        local wheelToe = part.Orientation.EulerAngles
-        print(part.Up)
-        local Toe = Forward - wheelToe
-        local Toe = Toe.Y --  * 360
+        local Forward = (Player.Orientation.EulerAngles)
+        local WheelAngles = Vector3.__new(part.Forward.X%180,part.Forward.Y%180,part.Forward.Z%180)
+        local WheelPos = part.Position
+        local WorldSpin = pointmath.radsToDegs(pointmath.AngleFromOrigin(WheelPos, Vector3.__new(0,0,1)))
+        local Toe = Forward - WheelAngles
+        Toe = Toe.Y - WorldSpin
+        print("WorldSpin", "Toe", "WheelPos", "Forward", "WheelAngles", "[*]")
+        print(math.round(WorldSpin, 1), math.round(Toe, 1), WheelPos, Forward, WheelAngles)
         if Toe > 90 then
             Toe = Toe + 180
         elseif Toe < -90 then
             Toe = Toe + 180
         end
+        Toe = Toe + mod
         lines[toe_line][2] = lines_ref[toe_line][2]
         local angle = pointmath.rotatepoint(lines[toe_line][2]-lines[toe_line][1], pointmath.degsToRads(Toe))
         

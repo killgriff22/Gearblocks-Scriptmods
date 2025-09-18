@@ -1,0 +1,8 @@
+{
+  "name": "HydraulicPistons",
+  "desc": "Link an Angle Sensor and a Piston Barrel together.",
+  "tags": [
+    "Debug",
+    "ScriptMod"
+  ]
+}

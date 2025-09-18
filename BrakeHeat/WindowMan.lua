@@ -1,17 +1,18 @@
 local WindowMan = {}
-local function CreateWindow(l, w, closefunc,x,y)
+
+local function CreateWindow(l, w, closefunc, x, y)
     local localwindow
     x = x or 80
     y = y or 20
     localwindow = Windows.CreateWindow()
-    localwindow.SetAlignment(align_RightEdge, x, l)
-    localwindow.SetAlignment(align_TopEdge, y, w)
+    localwindow.SetAlignment(align_RightEdge, 20, w)
+    localwindow.SetAlignment(align_TopEdge, 80, l)
     localwindow.OnClose.add(closefunc)
     localwindow.Title = ""
     localwindow.Show(true)
     return localwindow
 end
-local function CreateLabel(x,y,w,h,txt,localwindow)
+local function CreateLabel(x, y, w, h, txt, localwindow)
     local lbl = localwindow.CreateLabel()
     lbl.SetAlignment(align_LeftEdge,  x, w)
     lbl.SetAlignment(align_TopEdge,  y, h)
@@ -19,7 +20,7 @@ local function CreateLabel(x,y,w,h,txt,localwindow)
     return lbl
     
 end
-local function CreateButton(x,y,w,h,txt,localwindow,clickfunc)
+local function CreateButton(x, y, w, h, txt, localwindow, clickfunc)
     local btn = localwindow.CreateTextButton()
     btn.SetAlignment(align_LeftEdge,  x, w)
     btn.SetAlignment(align_TopEdge,  y, h)
@@ -27,7 +28,7 @@ local function CreateButton(x,y,w,h,txt,localwindow,clickfunc)
     btn.Text = txt
     return btn
 end
-local function createSlider(x,y,w,h,localwindow, min, max, default)
+local function createSlider(x, y, w, h, localwindow, min, max, default)
     local slider = localwindow.CreateSlider()
     slider.SetAlignment( align_LeftEdge, x, w )
     slider.SetAlignment( align_TopEdge, y, h )
@@ -39,21 +40,21 @@ end
 local function GenericOnWindowClose()
     UnloadScript.Raise(ScriptName) -- Window closed, so unload this script.
 end
-local function CreateLabelledToggle(x,y,w,h,txt,localwindow,clickfunc)
+local function CreateLabelledToggle(x, y, w, h, txt, localwindow, clickfunc)
     local toggle = localwindow.CreateLabelledToggle()
     toggle.SetAlignment( align_LeftEdge, x, w )
     toggle.SetAlignment( align_TopEdge, y, h )
     toggle.Text = txt
     return toggle
 end
-local function CreateInputField(x,y,w,h,localwindow, default)
+local function CreateInputField(x, y, w, h, localwindow, default)
     local input = localwindow.CreateInputField()
     input.SetAlignment( align_LeftEdge, x, w )
     input.SetAlignment( align_TopEdge, y, h )
-    input.Text = default
+    input.Value = default
     return input
 end
-local function CreateLabelledInputField(x,y,w,h,txt,localwindow, default)
+local function CreateLabelledInputField(x, y, w, h, txt, localwindow, default)
     local input = localwindow.CreateLabelledInputField()
     input.SetAlignment( align_LeftEdge, x, w )
     input.SetAlignment( align_TopEdge, y, h )
@@ -61,7 +62,7 @@ local function CreateLabelledInputField(x,y,w,h,txt,localwindow, default)
     input.Value = default
     return input
 end
-local function CreateLabelledDropdown(x,y,w,h,txt,localwindow, values)
+local function CreateLabelledDropdown(x, y, w, h, txt, localwindow, values)
     local dropdown = localwindow.CreateLabelledDropdown()
     dropdown.SetAlignment( align_LeftEdge, x, w )
     dropdown.SetAlignment( align_TopEdge, y, h )

@@ -1,0 +1,8 @@
+{
+    "name":"Brake Heat",
+    "description":"An attempt to simulate brake heat, and its effects on braking torque.",
+    "tags":[
+        "thisisx-x",
+        "scriptmod"
+    ]
+}

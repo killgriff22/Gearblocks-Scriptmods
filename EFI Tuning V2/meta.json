@@ -1,8 +1,7 @@
 {
-  "name": "Volumetric Tuning Example",
+  "name": "EFI Tuning V2",
   "desc": "Template Tune\npress <b>Tab</b> on a construction to select it\n dropdowns let you change what inputs and outputs are used in the tune\ntext boxes let you scale the inputs and outputs",
   "tags": [
     "Tuning"
-  ],
-  "publishedID": 3394381750
+  ]
 }
